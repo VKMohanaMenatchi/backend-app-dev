@@ -1,5 +1,6 @@
 package com.examly.springapp.controller;
 
+import com.examly.springapp.dto.BlogPostViewDTO;
 import com.examly.springapp.model.BlogPost;
 import com.examly.springapp.model.Category;
 import com.examly.springapp.model.User;
@@ -80,9 +81,9 @@ public class BlogPostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BlogPost> getPost(@PathVariable Long id) {
+    public ResponseEntity<BlogPostViewDTO> getPost(@PathVariable Long id) {
         BlogPost post = blogPostService.getPostById(id);
-        return ResponseEntity.ok(post);
+        return ResponseEntity.ok(new BlogPostViewDTO(post));
     }
 
     @GetMapping("/public")
@@ -119,7 +120,13 @@ public class BlogPostController {
 
     @GetMapping("/trending")
     public ResponseEntity<List<BlogPost>> getTrendingPosts() {
-        List<BlogPost> posts = blogPostService.getTrendingPosts();
-        return ResponseEntity.ok(posts);
+        try {
+
+            List<BlogPost> posts = blogPostService.getTrendingPosts();
+            return ResponseEntity.ok(posts);
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 }

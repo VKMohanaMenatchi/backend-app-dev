@@ -4,20 +4,31 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table(name = "comments")
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id"
+)
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private BlogPost post;
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "post_id")
+@JsonBackReference  // prevents loop with BlogPost
+private BlogPost post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
-    private User author;
+
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "author_id")
+@JsonBackReference(value = "user-comments")  // matches the reference name in User
+private User author;
 
     @NotBlank
     @Column(columnDefinition = "TEXT")

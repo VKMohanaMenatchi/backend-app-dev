@@ -7,8 +7,16 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity
 @Table(name = "users")
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id"
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,11 +54,13 @@ public class User {
 
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    private List<BlogPost> blogPosts;
+@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+@JsonManagedReference  // manages reference from User to BlogPost
+private List<BlogPost> blogPosts;
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+@JsonManagedReference(value = "user-comments")  // custom reference name for Comment relation
+private List<Comment> comments;
 
     public enum Role {
         ADMIN, BLOGGER, PREMIUM_BLOGGER, MODERATOR, READER, GUEST

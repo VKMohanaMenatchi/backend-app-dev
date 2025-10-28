@@ -6,17 +6,27 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity
 @Table(name = "blog_posts")
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id"
+)
 public class BlogPost {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
-    private User author;
-
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "author_id")
+@JsonBackReference  // prevents loop with User
+private User author;
     @NotBlank
     @Size(min = 5, max = 200)
     private String title;
@@ -52,9 +62,9 @@ public class BlogPost {
     @Column(name = "featured_image")
     private String featuredImage;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comment> comments;
-
+@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+@JsonManagedReference  // prevents infinite loop with Comment
+private List<Comment> comments;
     public enum Status {
         DRAFT, PUBLISHED, ARCHIVED, DELETED
     }
